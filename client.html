@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SHAH APPLIANCES</title>
+  <style>
+    :root{
+      --bg:#f7f7f8;
+      --card:#ffffff;
+      --ink:#111;
+      --muted:#666;
+      --brand:#ff9900; /* buttons */
+      --brand-ink:#111;
+      --bar:#232f3e;  /* header/nav */
+      --ok:#16a34a;
+      --danger:#dc2626;
+      --border:#e5e7eb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);}  /* Header */
+header{
+  position:sticky;top:0;z-index:50;
+  display:flex;gap:12px;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--bar);color:#fff;flex-wrap:wrap;
+}
+.logo{font-weight:700;font-size:20px;white-space:nowrap}
+.search{
+  flex:1;min-width:260px;display:flex;overflow:hidden;border-radius:6px;background:#fff;
+}
+.search input{flex:1;padding:10px;border:0;outline:none}
+.search button{border:0;background:var(--brand);color:var(--brand-ink);padding:0 12px;cursor:pointer;font-weight:700}
+.cart-btn{
+  position:relative;background:var(--brand);color:var(--brand-ink);border:0;border-radius:6px;padding:8px 12px;font-weight:700;cursor:pointer;
+}
+.cart-badge{
+  position:absolute;top:-8px;right:-8px;background:#ff3b30;color:#fff;border-radius:999px;padding:2px 7px;font-size:12px;font-weight:700
+}
+
+/* Sections */
+main{padding:16px}
+.section{display:none}
+.section.active{display:block}
+
+/* Filter bar */
+.filters{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;
+  display:grid;gap:10px;grid-template-columns:2fr 1fr 1fr 1fr auto;
+}
+.filters .input{width:100%}
+.filters .btn{width:100%}
+@media (max-width: 900px){
+  .filters{grid-template-columns:1fr 1fr 1fr}
+  .filters .wide{grid-column:1 / -1}
+}
+@media (max-width: 520px){
+  .filters{grid-template-columns:1fr 1fr}
+}
+
+/* Product grid */
+.grid{
+  display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;
+  display:flex;flex-direction:column;gap:8px;
+}
+.card img{width:100%;height:180px;object-fit:contain}
+.title{font-weight:700}
+.muted{color:var(--muted);font-size:12px}
+.stars{color:#f59e0b}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--border);background:var(--card);padding:10px 14px;border-radius:8px;cursor:pointer}
+.btn.brand{background:var(--brand);color:var(--brand-ink);border-color:#0001;font-weight:700}
+.btn.danger{background:#fff;color:var(--danger);border-color:var(--danger)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* Product view */
+.pv{
+  display:grid;gap:20px;grid-template-columns:1.1fr 1.4fr;
+  background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;
+}
+.pv .mainimg{width:100%;max-width:420px;aspect-ratio:4/3;object-fit:contain;border:1px solid var(--border);border-radius:8px;background:#fff}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumbs img{width:60px;height:60px;object-fit:cover;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#fff}
+.qtybox{display:inline-grid;grid-template-columns:36px 64px 36px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.qtybox button{border:0;background:#efefef;font-weight:800;cursor:pointer}
+.qtybox input{border:0;text-align:center}
+
+/* Cart */
+.cart-wrap{display:grid;gap:16px;grid-template-columns:2fr 1fr}
+.cart-list{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+.cart-item{
+  display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;
+  padding:10px 0;border-bottom:1px solid var(--border)
+}
+.cart-item:last-child{border-bottom:0}
+.cart-item img{width:72px;height:72px;object-fit:cover;border:1px solid var(--border);border-radius:8px;background:#fff}
+.cart-actions{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.price{white-space:nowrap}
+
+.bill{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+.bill-row{display:flex;justify-content:space-between;margin:6px 0}
+.bill .total{font-size:20px;font-weight:800;border-top:2px solid var(--ink);padding-top:8px;margin-top:8px}
+
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.input{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:#fff}
+textarea.input{min-height:96px;resize:vertical}
+
+/* Locations */
+.locations{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+.locgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+/* Floating buttons */
+.float{
+  position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:10px;z-index:60
+}
+.float a{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:999px;color:#fff;text-decoration:none;font-size:18px}
+.float .call{background:#0ea5e9}
+.float .wa{background:#25D366}
+
+/* Order confirmation (kept but unused for WA-only flow) */
+.confirm{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+
+/* Responsive tweaks */
+@media (max-width: 960px){
+  .pv{grid-template-columns:1fr}
+  .cart-wrap{grid-template-columns:1fr}
+}
+@media (max-width: 520px){
+  .cart-item{grid-template-columns:56px 1fr}
+  .cart-item .price{justify-self:start;margin-top:4px}
+}
+
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="logo"><img src="logo.png" alt="" style="height: 30px;width: 30px;vertical-align: middle;margin-right: 8px;">SHAH APPLIANCES</div>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search products..." />
+      <button id="searchBtn">Search</button>
+    </div>
+    <button id="openCart" class="cart-btn">🛒 Cart <span id="cart-count" class="cart-badge">0</span></button>
+  </header>
+  <main>
+    <!-- Home -->
+    <section id="home" class="section active">
+      <!-- Filter Bar -->
+      <div class="filters">
+        <input id="f-q" class="input wide" placeholder="Search by product or brand..." />
+        <select id="f-cat" class="input">
+          <option value="All">All Categories</option>
+          <option value="Mobiles">Mobiles</option>
+          <option value="Laptops">Laptops</option>
+          <option value="Tablets">Tablets</option>
+          <option value="Wearables">Wearables</option>
+          <option value="Audio">Audio</option>
+          <option value="TV">TV</option>
+          <option value="Cameras">Cameras</option>
+          <option value="Speakers">Speakers</option>
+        </select>
+        <input id="f-min" class="input" type="number" min="0" placeholder="Min ₹" />
+        <input id="f-max" class="input" type="number" min="0" placeholder="Max ₹" />
+        <button id="f-reset" class="btn">Reset</button>
+      </div>
+      <div id="product-list" class="grid"></div>
+    </section>
+
+    <!-- Product View -->
+    <section id="product-view" class="section">
+      <button class="btn" onclick="showSection('home')">← Back</button>
+      <div class="pv" style="margin-top:10px">
+        <div>
+          <img id="pv-main" class="mainimg" src="" alt="Product image" />
+          <div id="pv-thumbs" class="thumbs"></div>
+        </div>
+        <div>
+          <h2 id="pv-title" class="title"></h2>
+          <div id="pv-brand" class="muted"></div>
+          <div id="pv-stars" class="stars" style="margin:6px 0"></div>
+          <p id="pv-desc"></p>
+          <p><strong>₹<span id="pv-price"></span></strong> <span class="muted">MRP: ₹<span id="pv-mrp"></span></span></p>
+          <div class="row" style="margin:10px 0">
+            <div class="qtybox">
+              <button id="pv-minus">−</button>
+              <input id="pv-qty" type="number" min="1" value="1" />
+              <button id="pv-plus">+</button>
+            </div>
+            <button id="pv-add" class="btn brand">Add to Cart</button>
+            <button id="pv-buynow" class="btn">Go to Cart</button>
+            <button id="pv-wa" class="btn">Buy via WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cart -->
+    <section id="cart" class="section">
+      <button class="btn" onclick="showSection('home')">← Continue Shopping</button>
+      <div class="cart-wrap" style="margin-top:12px">
+        <div class="cart-list">
+          <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h2 style="margin:0">Your Cart</h2>
+            <button id="clearCart" class="btn danger">Clear Cart</button>
+          </div>
+          <div id="cart-items"></div>
+        </div>
+
+        <div class="bill">
+          <h3 style="margin-top:0">Billing</h3>
+          <div class="bill-row"><span>Subtotal</span><span>₹<span id="b-sub">0</span></span></div>
+          <div class="bill-row"><span>Shipping</span><span>₹<span id="b-ship">0</span></span></div>
+          <div class="bill-row"><span>Tax (10%)</span><span>₹<span id="b-tax">0</span></span></div>
+          <div class="bill-row"><span>Discount</span><span>− ₹<span id="b-disc">0</span></span></div>
+          <div class="bill-row total"><span>Total</span><span>₹<span id="b-total">0</span></span></div>
+
+          <div class="row" style="margin-top:10px">
+            <input id="coupon" class="input" placeholder="Coupon code (SAVE10)" />
+            <button id="applyCoupon" class="btn">Apply Coupon</button>
+          </div>
+
+          <h3>Delivery Details</h3>
+          <input id="a-name" class="input" placeholder="Full Name" />
+          <input id="a-phone" class="input" placeholder="Phone (10 digits)" inputmode="numeric" />
+          <textarea id="a-addr" class="input" placeholder="Full Address (required)"></textarea>
+
+          <div class="row" style="margin-top:6px">
+            <button id="shareLocation" class="btn">📍 Share Live Location (optional)</button>
+            <input id="locPreview" class="input" placeholder="No live location shared yet" readonly />
+          </div>
+          <div id="addr-hint" class="muted" style="margin-top:4px"></div>
+
+          <div class="row" style="margin-top:10px">
+            <button id="placeOrder" class="btn brand block">Place Order</button>
+            <button id="waOrder" class="btn block">Buy via WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Confirm (unused in WA flow) -->
+    <section id="confirm" class="section">
+      <div class="confirm">
+        <h2 style="margin-top:0">✅ Order Placed</h2>
+        <p id="conf-msg" class="muted"></p>
+        <div style="margin-top:12px">
+          <button class="btn" onclick="showSection('home')">Back to Home</button>
+        </div>
+      </div>
+    </section>
+
+  <!-- Floating Call & WhatsApp -->
+  <div class="float">
+    <a class="call" href="tel:+91 8793827655" title="Call">📞</a>
+    <a  id="wa-float" class="wa" style="background-color: #25D366;" href="https://wa.me/7028115061" target="_blank" aria-label="WhatsApp" class="w-12 h-12 grid place-items-center rounded-full bg-emerald-500 hover:bg-emerald-400 text-espresso-900 font-bold shadow-glow">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="white" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.946 11.946 0 0 1-1.62-6.003C.122 5.373 5.495 0 12.057 0c3.178 0 6.167 1.24 8.413 3.488a11.82 11.82 0 0 1 3.48 8.414c-.003 6.563-5.377 11.936-11.94 11.936a11.95 11.95 0 0 1-6.003-1.616L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.593 5.448 0 9.886-4.434 9.889-9.882.002-5.462-4.415-9.89-9.881-9.892-5.45 0-9.884 4.43-9.886 9.88-.001 2.136.627 3.756 1.684 5.366l-.999 3.648 3.801-.713zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.03-.967-.272-.099-.47-.149-.667.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.474-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.074-.149-.667-1.612-.916-2.207-.242-.579-.487-.5-.667-.51l-.57-.01c-.198 0-.52.074-.793.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+    </a>
+   <a href="https://www.google.com/maps?q=15.5626150,74.0109960" target="_blank"  title="Find Us on Maps" style="background-color:#f59e0b;">
+    <!-- Map Pin SVG -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="height: 40px;" viewBox="0 0 24 24">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 
+      9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 
+      2.5-2.5 2.5 1.12 2.5 2.5-1.12 
+      2.5-2.5 2.5z"/>
+    </svg>
+  </a> 
+  </div>
+
+  <script>
+    /* ------------------ Config ------------------ */
+    const WA_NUMBER = "918793827655"; // client WhatsApp number (no +)
+
+    /* ------------------ Data -------------------- */
+    // All electronics with categories for filtering
+    const products = [
+      {id:1,category:"Mobiles",title:"Smartphone X1 5G (128GB)",brand:"Zenfone",price:19999,mrp:22999,desc:"AMOLED • 50MP • 5000mAh.",rating:4,images:["https://picsum.photos/seed/p1a/800/600","https://picsum.photos/seed/p1b/800/600","https://picsum.photos/seed/p1c/800/600","https://picsum.photos/seed/p1d/800/600"]},
+      {id:2,category:"Laptops",title:"UltraBook 14",brand:"LiteNova",price:74999,mrp:89999,desc:"Ryzen 7 • 16GB • 512GB.",rating:5,images:["https://picsum.photos/seed/p2a/800/600","https://picsum.photos/seed/p2b/800/600","https://picsum.photos/seed/p2c/800/600"]},
+      {id:3,category:"Tablets",title:"Tablet A10 (10.4″, 128GB)",brand:"Tabio",price:22999,mrp:26999,desc:"2K display • 7,200mAh.",rating:4,images:["https://picsum.photos/seed/p3a/800/600","https://picsum.photos/seed/p3b/800/600","https://picsum.photos/seed/p3c/800/600"]},
+      {id:4,category:"Wearables",title:"Smartwatch S9",brand:"Chronix",price:6999,mrp:8499,desc:"AMOLED • GPS • 5ATM.",rating:3,images:["https://picsum.photos/seed/p4a/800/600","https://picsum.photos/seed/p4b/800/600","https://picsum.photos/seed/p4c/800/600"]},
+      {id:5,category:"Audio",title:"ANC Headphones",brand:"SoundPeak",price:5999,mrp:7499,desc:"Hybrid ANC • 40h • BT 5.3.",rating:5,images:["https://picsum.photos/seed/p5a/800/600","https://picsum.photos/seed/p5b/800/600","https://picsum.photos/seed/p5c/800/600"]},
+      {id:6,category:"TV",title:"4K Smart TV 55″",brand:"ViewStar",price:45999,mrp:54999,desc:"UHD • Dolby Vision • Fire TV.",rating:4,images:["https://picsum.photos/seed/p6a/800/600","https://picsum.photos/seed/p6b/800/600"]},
+      {id:7,category:"Speakers",title:"Bluetooth Speaker Mini",brand:"Boomio",price:2499,mrp:3299,desc:"12h playtime • IPX5.",rating:4,images:["https://picsum.photos/seed/p7a/800/600","https://picsum.photos/seed/p7b/800/600","https://picsum.photos/seed/p7c/800/600"]},
+      {id:8,category:"Cameras",title:"Mirrorless Camera 24MP",brand:"Photonix",price:42999,mrp:52999,desc:"4K video • 15–45mm.",rating:5,images:["https://picsum.photos/seed/p8a/800/600","https://picsum.photos/seed/p8b/800/600","https://picsum.photos/seed/p8c/800/600"]}
+    ];
+
+    /* ------------------ State ------------------- */
+    let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    let couponCode = localStorage.getItem("coupon") || "";
+    let currentProduct = null;
+
+    // Live location state (optional)
+    let liveLat = localStorage.getItem("liveLat");
+    let liveLng = localStorage.getItem("liveLng");
+
+    // Filter state
+    let fQ = ""; let fCat = "All"; let fMin = ""; let fMax = "";
+
+    /* ------------------ Helpers ----------------- */
+    const $ = (id)=>document.getElementById(id);
+    const fmt = (n)=> Number(n).toLocaleString("en-IN");
+    const starStr = (n)=> "★".repeat(n)+"☆".repeat(5-n);
+
+    function saveCart(){ localStorage.setItem("cart", JSON.stringify(cart)); updateCartBadge(); }
+    function updateCartBadge(){ $("cart-count").textContent = cart.reduce((s,i)=>s+i.qty,0); }
+
+    function loadAddress(){
+      $("a-name").value = localStorage.getItem("a-name") || "";
+      $("a-phone").value= localStorage.getItem("a-phone")|| "";
+      $("a-addr").value = localStorage.getItem("a-addr") || "";
+      if(liveLat && liveLng){
+        $("locPreview").value = "https://www.google.com/maps?q=" + liveLat + "," + liveLng;
+      } else {
+        $("locPreview").value = "No live location shared yet";
+      }
+      // restore coupon
+      $("coupon").value = couponCode;
+    }
+    function saveAddress(){
+      localStorage.setItem("a-name", $("a-name").value.trim());
+      localStorage.setItem("a-phone",$("a-phone").value.trim());
+      localStorage.setItem("a-addr", $("a-addr").value.trim());
+    }
+    function phoneValid(p){ return /^\d{10}$/.test(p || ""); }
+
+    function computeBill(){
+      const subtotal = cart.reduce((s,i)=> s + i.price*i.qty, 0);
+      const shipping = cart.length ? 199 : 0; // flat demo shipping
+      const tax = Math.round(subtotal * 0.10);
+      const discount = (couponCode.toUpperCase()==="SAVE10") ? Math.round(subtotal*0.10) : 0;
+      const total = subtotal + shipping + tax - discount;
+      return {subtotal, shipping, tax, discount, total};
+    }
+
+    function numberEmoji(i){
+      const map = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"];
+      return (i >= 0 && i <= 10) ? map[i] : ("#" + i);
+    }
+
+    /* ------------------ Filters ----------------- */
+    function applyFilters(){
+      fQ = ($("f-q").value || "").trim().toLowerCase();
+      fCat = $("f-cat").value;
+      fMin = $("f-min").value;
+      fMax = $("f-max").value;
+
+      let list = products.filter(p=>{
+        const textMatch = (p.title+" "+p.brand).toLowerCase().includes(fQ);
+        const catMatch = (fCat==="All") ? true : p.category===fCat;
+        const minMatch = fMin ? p.price >= Number(fMin) : true;
+        const maxMatch = fMax ? p.price <= Number(fMax) : true;
+        return textMatch && catMatch && minMatch && maxMatch;
+      });
+      renderProducts(list);
+    }
+    function resetFilters(){
+      $("f-q").value=""; $("f-cat").value="All"; $("f-min").value=""; $("f-max").value="";
+      applyFilters();
+    }
+
+    /* ------------------ Rendering --------------- */
+    function renderProducts(list=products){
+      const el = $("product-list"); el.innerHTML = "";
+      if(!list.length){
+        el.innerHTML = `<div class="card"><div class="title">No products found</div><div class="muted">Try changing your filters.</div></div>`;
+        return;
+      }
+      list.forEach(p=>{
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${p.images[0]}" alt="${p.title}">
+          <div class="title">${p.title}</div>
+          <div class="muted">${p.brand} • <span>${p.category}</span></div>
+          <div class="stars">${starStr(p.rating)}</div>
+          <div><strong>₹${fmt(p.price)}</strong> <span class="muted">MRP ₹${fmt(p.mrp)}</span></div>
+          <div class="row">
+            <button class="btn brand" onclick="viewProduct(${p.id})">View</button>
+            <button class="btn" onclick="quickAdd(${p.id})">Add</button>
+          </div>
+        `;
+        el.appendChild(card);
+      });
+    }
+
+    function viewProduct(id){
+      const p = products.find(x=>x.id===id); if(!p) return;
+      currentProduct = p;
+      $("pv-main").src = p.images[0];
+      $("pv-title").textContent = p.title;
+      $("pv-brand").textContent = `${p.brand} • ${p.category}`;
+      $("pv-stars").innerHTML = starStr(p.rating);
+      $("pv-desc").textContent = p.desc;
+      $("pv-price").textContent = fmt(p.price);
+      $("pv-mrp").textContent = fmt(p.mrp);
+      $("pv-qty").value = 1;
+      const t = $("pv-thumbs"); t.innerHTML = "";
+      p.images.forEach(src=>{
+        const im = document.createElement("img");
+        im.src=src; im.alt="thumb"; im.onclick=()=>{$("pv-main").src=src;};
+        t.appendChild(im);
+      });
+      showSection("product-view");
+    }
+
+    function quickAdd(id){
+      const p = products.find(x=>x.id===id); if(!p) return;
+      const ex = cart.find(c=>c.id===p.id);
+      if(ex) ex.qty += 1; else cart.push({...p, qty:1});
+      saveCart(); toast("Added to cart");
+      updateWAFloat();
+    }
+
+    function renderCart(){
+      const list = $("cart-items");
+      list.innerHTML = "";
+      if(!cart.length){
+        list.innerHTML = `<p class="muted" style="margin:6px 0">Your cart is empty.</p>`;
+      } else {
+        cart.forEach((c,idx)=>{
+          const row = document.createElement("div");
+          row.className = "cart-item";
+          row.innerHTML = `
+            <img src="${c.images[0]}" alt="${c.title}">
+            <div>
+              <div class="title">${c.title}</div>
+              <div class="muted">${c.brand} • ${c.category}</div>
+              <div class="cart-actions">
+                <div class="qtybox">
+                  <button onclick="decQty(${idx})">−</button>
+                  <input type="number" min="1" value="${c.qty}" onchange="setQty(${idx}, this.value)">
+                  <button onclick="incQty(${idx})">+</button>
+                </div>
+                <button class="btn" onclick="removeItem(${idx})">Remove</button>
+              </div>
+            </div>
+            <div class="price">₹${fmt(c.price*c.qty)}</div>
+          `;
+          list.appendChild(row);
+        });
+      }
+      // billing
+      const b = computeBill();
+      $("b-sub").textContent = fmt(b.subtotal);
+      $("b-ship").textContent = fmt(b.shipping);
+      $("b-tax").textContent = fmt(b.tax);
+      $("b-disc").textContent = fmt(b.discount);
+      $("b-total").textContent = fmt(b.total);
+      $("coupon").value = couponCode;
+      updateWAFloat();
+    }
+
+    /* ------------------ Cart ops ---------------- */
+    window.decQty = (i)=>{ cart[i].qty = Math.max(1, cart[i].qty-1); saveCart(); renderCart(); }
+    window.incQty = (i)=>{ cart[i].qty = Math.max(1, cart[i].qty+1); saveCart(); renderCart(); }
+    window.setQty = (i,v)=>{ cart[i].qty = Math.max(1, parseInt(v||"1")); saveCart(); renderCart(); }
+    window.removeItem = (i)=>{ cart.splice(i,1); saveCart(); renderCart(); }
+    $("clearCart").addEventListener("click", ()=>{ cart = []; saveCart(); renderCart(); });
+
+    /* ------------------ Search ------------------ */
+    function doSearch(){
+      $("f-q").value = $("search").value;
+      applyFilters();
+    }
+    $("searchBtn").addEventListener("click", doSearch);
+    $("search").addEventListener("keyup", (e)=>{ if(e.key==="Enter") doSearch(); });
+
+    // Filter bar events (live)
+    $("f-q").addEventListener("input", applyFilters);
+    $("f-cat").addEventListener("change", applyFilters);
+    $("f-min").addEventListener("input", applyFilters);
+    $("f-max").addEventListener("input", applyFilters);
+    $("f-reset").addEventListener("click", resetFilters);
+
+    /* -------------- Product View CTAs ----------- */
+    $("pv-minus").addEventListener("click", ()=>{ $("pv-qty").value = Math.max(1, (+$("pv-qty").value||1)-1); });
+    $("pv-plus").addEventListener("click",  ()=>{ $("pv-qty").value = Math.max(1, (+$("pv-qty").value||1)+1); });
+
+    $("pv-add").addEventListener("click", ()=>{
+      if(!currentProduct) return;
+      const q = Math.max(1, parseInt($("pv-qty").value||"1"));
+      const ex = cart.find(c=>c.id===currentProduct.id);
+      if(ex) ex.qty += q; else cart.push({...currentProduct, qty:q});
+      saveCart(); toast("Added to cart");
+      updateWAFloat();
+    });
+
+    $("pv-buynow").addEventListener("click", ()=>{ showSection("cart"); renderCart(); });
+
+    $("pv-wa").addEventListener("click", ()=>{
+      if(!currentProduct) return;
+      const q = Math.max(1, parseInt($("pv-qty").value||"1"));
+      const lineTotal = currentProduct.price*q;
+      const ship = 199, tax = Math.round(lineTotal*0.10), disc = 0;
+      const total = lineTotal + ship + tax - disc;
+      const nm = ($("a-name").value||"").trim();
+      const ph = ($("a-phone").value||"").trim();
+      const ad = ($("a-addr").value||"").trim();
+      const locLine = (liveLat && liveLng) ? `\n🌍 Live Location:\nhttps://www.google.com/maps?q=${liveLat},${liveLng}` : "";
+
+      const lines = [
+        "🛒 New Order (Product)",
+        `${currentProduct.title} (${currentProduct.brand})`,
+        `🔢 Qty: ${q}`,
+        `💸 Price: ₹${fmt(currentProduct.price)}  |  Line: ₹${fmt(lineTotal)}`,
+        "",
+        `💰 Subtotal: ₹${fmt(lineTotal)}`,
+        `🚚 Shipping: ₹${fmt(ship)}   🧾 Tax: ₹${fmt(tax)}   🏷 Discount: ₹${fmt(disc)}`,
+        "--------------------------------",
+        `✅ Total: ₹${fmt(total)}`
+      ];
+      if(nm || ph || ad){
+        lines.push("", "📍 Delivery Address:");
+        if(nm) lines.push(nm);
+        if(ph) lines.push(`📞 ${ph}`);
+        if(ad) lines.push(ad);
+      }
+      if(locLine) lines.push(locLine);
+      const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+      window.open(url,"_blank");
+    });
+
+    /* ---------------- Coupon -------------------- */
+    $("applyCoupon").addEventListener("click", ()=>{
+      couponCode = ($("coupon").value||"").trim();
+      localStorage.setItem("coupon", couponCode);
+      renderCart();
+    });
+
+    /* --------------- Checkout ------------------- */
+    // BOTH buttons behave the same: redirect to WhatsApp with bill
+    function validateAddress(){
+      const name = $("a-name").value.trim();
+      const phone= $("a-phone").value.trim();
+      const addr = $("a-addr").value.trim();
+      if(!name || !phone || !addr){
+        $("addr-hint").textContent = "Please fill Name, Phone and Address.";
+        alert("Please enter your delivery details.");
+        return false;
+      }
+      if(!phoneValid(phone)){
+        $("addr-hint").textContent = "Phone must be 10 digits (numbers only).";
+        alert("Please enter a valid 10-digit phone number.");
+        return false;
+      }
+      $("addr-hint").textContent = "";
+      return true;
+    }
+
+    function genOrderId(){
+      const n = Math.floor(Math.random()*1e6).toString().padStart(6,"0");
+      return "ORD" + n;
+    }
+
+    function buildWAOrderURL(){
+      const b = computeBill();
+      const name = $("a-name").value.trim();
+      const phone= $("a-phone").value.trim();
+      const addr = $("a-addr").value.trim();
+      const id = genOrderId();
+      const lines = [
+        "🛒 New Order Received",
+        "",
+        "📦 Items:"
+      ];
+      cart.forEach((c,i)=>{
+        lines.push(`${numberEmoji(i+1)} ${c.title} (x${c.qty}) – ₹${fmt(c.price*c.qty)}`);
+      });
+      lines.push(
+        "",
+        `💰 Subtotal: ₹${fmt(b.subtotal)}`,
+        `🚚 Shipping: ₹${fmt(b.shipping)}`,
+        `🧾 Tax (10%): ₹${fmt(b.tax)}`,
+        `🏷 Discount: -₹${fmt(b.discount)}`,
+        "--------------------------------",
+        `✅ *Total: ₹${fmt(b.total)}*`,
+        "",
+        "📍 Delivery Address:",
+        name,
+        `📞 ${phone}`,
+        addr
+      );
+      if(liveLat && liveLng){
+        lines.push("", "🌍 Live Location:", `https://www.google.com/maps?q=${liveLat},${liveLng}`);
+      }
+      lines.push("", `🧾 Order ID: ${id}`, `🕒 Date: ${new Date().toLocaleString()}`);
+      return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+    }
+
+    function goToWhatsAppOrder(){
+      if(!validateAddress()) return;
+      if(!cart.length){ alert("Your cart is empty."); return; }
+      saveAddress();
+      const url = buildWAOrderURL();
+      window.open(url,"_blank");
+    }
+
+    // Bind both buttons to the same WA action
+    $("placeOrder").addEventListener("click", goToWhatsAppOrder);
+    $("waOrder").addEventListener("click", goToWhatsAppOrder);
+
+    /* -------- Share Live Location (optional) ---- */
+    $("shareLocation").addEventListener("click", ()=>{
+      if(!navigator.geolocation){
+        alert("Geolocation is not supported by this browser.");
+        return;
+      }
+      $("locPreview").value = "Requesting your location…";
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          liveLat = pos.coords.latitude.toFixed(6);
+          liveLng = pos.coords.longitude.toFixed(6);
+          localStorage.setItem("liveLat", liveLat);
+          localStorage.setItem("liveLng", liveLng);
+          $("locPreview").value = "https://www.google.com/maps?q=" + liveLat + "," + liveLng;
+          alert("Live location added successfully.");
+        },
+        (err)=>{
+          console.warn("Geolocation error:", err);
+          $("locPreview").value = "Location permission denied or unavailable.";
+          alert("Could not get your live location. You can still place the order with your typed address.");
+        },
+        {enableHighAccuracy:true, timeout:15000, maximumAge:0}
+      );
+    });
+
+    /* -------- Floating WA button content -------- */
+    function updateWAFloat(){
+      const b = computeBill();
+      const msg = cart.length
+        ? `🛒 Cart: ${cart.length} item(s) • Total ₹${fmt(b.total)} — Tap to order`
+        : "Hi! I'd like to know more about your products.";
+      $("wa-float").href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+    }
+
+    /* ----------------- Router ------------------- */
+    function showSection(id){
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      const el = $(id);
+      if(el) el.classList.add("active");
+      if(id==="cart"){ renderCart(); }
+    }
+    $("openCart").addEventListener("click", ()=>{ showSection("cart"); });
+
+    /* ------------------ Toast (lite) ------------ */
+    function toast(txt){ console.log(txt); } // simple, no animations as requested
+
+    /* ------------------ Init -------------------- */
+    function init(){
+      renderProducts();
+      updateCartBadge();
+      loadAddress();
+      updateWAFloat();
+      renderCart();
+      applyFilters();
+    }
+    init();
+
+  </script>
+</body>
+</html>
